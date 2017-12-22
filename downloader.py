@@ -54,7 +54,8 @@ def download_to_file(filepath, url, session, headers, prefix_url=True):
 
 # creates a json file with info
 def save_book_details(book, title, directory, session, headers):
-    
+    title_prefix = "Packt Pub - "
+
     # fetch the product page
     product_url = book.xpath(".//div[contains(@class,'product-thumbnail')]//a/@href")
     product_page = session.get("https://www.packtpub.com" + product_url[0], verify=True, headers=headers)
@@ -78,19 +79,20 @@ def save_book_details(book, title, directory, session, headers):
         print ("Saving INFO")
 
         # save to file
-        filename = os.path.join(directory, title + ".json")
+        filename = os.path.join(directory, title_prefix + title + ".json")
         with open(filename, 'w') as outfile:
             json.dump(info_dict, outfile)
 
 
 # prepares book for download
 def download_book(book, directory, assets, session, headers):
+    title_prefix = "Packt Pub - "
 
     # scrub the title
     title = book.xpath("@title")[0].replace("/","-").replace(" [eBook]","").replace(":", " -").strip()
 
     # path to save the file
-    book_directory = os.path.join(directory, title)
+    book_directory = os.path.join(directory, title_prefix + title)
 
     # create the directory if doesn't exist
     if not os.path.exists(book_directory):
@@ -109,31 +111,31 @@ def download_book(book, directory, assets, session, headers):
 
     # pdf
     if len(pdf) > 0 and 'pdf' in assets:
-        filename = os.path.join(book_directory, title + ".pdf")
+        filename = os.path.join(book_directory, title_prefix + title + ".pdf")
         print("Downloading PDF")
         download_to_file(filename, pdf[0], session, headers)
 
     # epub
     if len(epub) > 0 and 'epub' in assets:
-        filename = os.path.join(book_directory, title + ".epub")
+        filename = os.path.join(book_directory, title_prefix + title + ".epub")
         print("Downloading EPUB")
         download_to_file(filename, epub[0], session, headers)
 
     # mobi
     if len(mobi) > 0 and 'mobi' in assets:
-        filename = os.path.join(book_directory, title + ".mobi")
+        filename = os.path.join(book_directory, title_prefix + title + ".mobi")
         print("Downloading MOBI")
         download_to_file(filename, mobi[0], session, headers)
 
     # code
     if len(code) > 0 and 'code' in assets:
-        filename = os.path.join(book_directory, title + " [CODE].zip")
+        filename = os.path.join(book_directory, title_prefix + title + " [CODE].zip")
         print("Downloading CODE")
         download_to_file(filename, code[0], session, headers)
 
     # cover image
     if len(image) > 0 and 'cover' in assets:
-        filename = os.path.join(book_directory, title + ".jpg")
+        filename = os.path.join(book_directory, title_prefix + title + ".jpg")
         image_url = "https:" + image[0].replace("/imagecache/thumbview", "", 1)
         print("Downloading IMAGE")
         download_to_file(filename, image_url, session, headers, False)
@@ -149,12 +151,13 @@ def download_book(book, directory, assets, session, headers):
 
 # download video
 def download_video(video, directory, assets, session, headers):
+    title_prefix = "Packt Pub - "
 
     # scrub the title
     title = video.xpath("@title")[0].replace("/","-").replace(" [Video]","").replace(":", " -").strip()
 
     # path to save the file
-    video_directory = os.path.join(directory, title)
+    video_directory = os.path.join(directory, title_prefix + title)
 
     # create the directory if doesn't exist
     if not os.path.exists(video_directory):
@@ -171,19 +174,19 @@ def download_video(video, directory, assets, session, headers):
 
     # video
     if len(video) > 0 and 'video' in assets:
-        filename = os.path.join(video_directory, title + " [VIDEO].zip")
+        filename = os.path.join(video_directory, title_prefix + title + " [VIDEO].zip")
         print("Downloading VIDEO")
         download_to_file(filename, video[0], session, headers)
 
     # code
     if len(code) > 0 and 'code' in assets:
-        filename = os.path.join(video_directory, title + " [CODE].zip")
+        filename = os.path.join(video_directory, title_prefix + title + " [CODE].zip")
         print("Downloading CODE")
         download_to_file(filename, code[0], session, headers)
 
     # cover image
     if len(image) > 0 and 'cover' in assets:
-        filename = os.path.join(video_directory, title + ".jpg")
+        filename = os.path.join(video_directory, title_prefix + title + ".jpg")
         image_url = "https:" + image[0].replace("/imagecache/thumbview", "", 1)
         print("Downloading IMAGE")
         download_to_file(filename, image_url, session, headers, False)
@@ -303,6 +306,6 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    reload(sys)  
+    reload(sys)
     sys.setdefaultencoding('utf8')
     main(sys.argv[1:])
